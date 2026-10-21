@@ -274,6 +274,16 @@
   .founder-row span{color:rgba(239,231,210,0.65);font-size:0.85rem;}
 
   /* ---------- closing cta ---------- */
+  form.bl-form{display:flex;gap:10px;max-width:640px;margin:22px auto 0;flex-wrap:wrap;justify-content:center;background:none;border:none;padding:0;}
+  .bl-form input{flex:1 1 180px;min-width:0;padding:13px 14px;border:1px solid rgba(251,249,242,0.35);border-radius:var(--radius);font-family:inherit;font-size:0.95rem;background:var(--white);color:var(--ink);}
+  .bl-form input:focus{outline:2px solid var(--ochre);outline-offset:1px;}
+  .bl-form .btn{flex:0 0 auto;border:none;cursor:pointer;font-family:inherit;}
+  .bl-msg{min-height:1.2em;margin-top:12px;font-weight:600;}
+  .bl-alt{font-size:0.88rem;opacity:0.85;margin-top:6px;}
+  .bl-alt a{color:var(--white);text-decoration:underline;}
+  .optin-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:12px;}
+  .optin-row input[type="checkbox"]{width:auto;margin-top:3px;flex-shrink:0;}
+  .optin-row label{font-size:0.85rem;color:var(--ink-soft);line-height:1.4;font-weight:600;}
   .closing-cta{background:var(--moss-dark);color:var(--white);text-align:center;padding:48px 0;}
   .closing-cta h2{font-size:clamp(1.7rem,3.6vw,2.5rem);margin-bottom:14px;color:var(--white);}
   .closing-cta p{color:rgba(251,249,242,0.8);margin-bottom:30px;font-size:1.05rem;}
@@ -382,6 +392,7 @@
       <a href="#about">About</a>
       <a href="#sell-land">Sell Your Land</a>
       <a href="#faq">FAQ</a>
+      <a href="#buyer-list">Get New Deals</a>
       <a href="#contact">Contact</a>
       <a href="#contact" class="cta">Get in Touch</a>
     </nav>
@@ -570,11 +581,17 @@
   </div>
 </section>
 
-<section class="closing-cta">
+<section class="closing-cta" id="buyer-list">
   <div class="wrap">
-    <h2 class="serif">Ready to Find Your Parcel?</h2>
-    <p>New parcels are added as they're confirmed — check back for the latest availability in Arkansas.</p>
-    <a href="#contact" class="btn btn-primary">Let's Talk</a>
+    <h2 class="serif">Get New Land Deals First</h2>
+    <p>Not seeing the right parcel yet? Join my buyer list and I'll email you new parcels before they go public. No spam, unsubscribe anytime.</p>
+    <form id="buyerListForm" class="bl-form" novalidate>
+      <input type="text" id="blName" placeholder="First name" autocomplete="given-name" aria-label="First name">
+      <input type="email" id="blEmail" placeholder="Email address" autocomplete="email" aria-label="Email address">
+      <button type="submit" class="btn btn-primary">Send Me Deals</button>
+    </form>
+    <p class="bl-msg" id="blMsg"></p>
+    <p class="bl-alt">Ready to talk now? <a href="#contact">Contact me directly</a></p>
   </div>
 </section>
 
@@ -682,12 +699,20 @@
           </div>
         </div>
         <div class="field">
+          <label for="contactEmail">Email (optional)</label>
+          <input type="email" id="contactEmail" autocomplete="email">
+        </div>
+        <div class="field">
           <label for="parcelInterest">Parcel of Interest (optional)</label>
           <input type="text" id="parcelInterest" placeholder="e.g. APN 123-456-789">
         </div>
         <div class="field">
           <label for="message">Message</label>
           <textarea id="message" rows="4" placeholder="Tell me a bit about what you're looking for..."></textarea>
+        </div>
+        <div class="optin-row">
+          <input type="checkbox" id="optinContact">
+          <label for="optinContact">Also email me new land deals before they go public (unsubscribe anytime)</label>
         </div>
         <div class="consent-row">
           <input type="checkbox" id="consentContact" required>
@@ -800,6 +825,10 @@
               <input type="radio" name="qiPayment" value="Cash Payment" style="width:auto;"> Cash Payment
             </label>
           </div>
+        </div>
+        <div class="optin-row">
+          <input type="checkbox" id="optinQi">
+          <label for="optinQi">Also email me new land deals before they go public (unsubscribe anytime)</label>
         </div>
         <div class="consent-row">
           <input type="checkbox" id="consentQi" required>
@@ -1107,6 +1136,37 @@ document.getElementById('modalContactBtn').addEventListener('click', function(){
   form.style.display = form.style.display === 'none' ? 'block' : 'none';
 });
 
+/* MailerLite buyer list signup — adds the subscriber to the "Land Buyers" group */
+const ML_SUBSCRIBE_URL = 'https://assets.mailerlite.com/jsonp/2723217/forms/201701976027694763/subscribe';
+function mlSubscribe(name, email, source){
+  const fd = new FormData();
+  fd.append('fields[name]', (name || '').trim().split(/\s+/)[0] || '');
+  fd.append('fields[email]', email.trim());
+  fd.append('fields[lead_source]', source);
+  fd.append('ml-submit', '1');
+  fd.append('anticsrf', 'true');
+  return fetch(ML_SUBSCRIBE_URL, {method:'POST', body:fd})
+    .then(r => r.json().catch(() => ({success:r.ok})))
+    .catch(() => fetch(ML_SUBSCRIBE_URL, {method:'POST', body:fd, mode:'no-cors'}).then(() => ({success:true})));
+}
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+document.getElementById('buyerListForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('blName').value.trim();
+  const email = document.getElementById('blEmail').value.trim();
+  const msg = document.getElementById('blMsg');
+  if(!name){ msg.textContent = 'Please enter your first name.'; return; }
+  if(!EMAIL_RE.test(email)){ msg.textContent = 'Please enter a valid email address.'; return; }
+  const btn = this.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  mlSubscribe(name, email, 'Website - home page').then(j => {
+    if(j && j.success === false){ btn.disabled = false; btn.textContent = 'Send Me Deals'; msg.textContent = 'Something went wrong. Please try again.'; return; }
+    this.style.display = 'none';
+    msg.textContent = "✓ You're on the list. Watch your inbox for new land deals.";
+  }).catch(() => { btn.disabled = false; btn.textContent = 'Send Me Deals'; msg.textContent = 'Connection problem. Please try again.'; });
+});
+
 /* Formspree submission helper — sends the form via fetch and shows an inline confirmation */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xdeozkqv';
 function submitToFormspree(formEl, data, successText){
@@ -1141,9 +1201,11 @@ document.getElementById('quickInterestForm').addEventListener('submit', function
   const payment = this.querySelector('input[name="qiPayment"]:checked').value;
   const l = currentModalListing;
   const parcelInfo = l ? `${l.title} — APN ${l.apn} — ${l.location}` : 'N/A';
+  const qiOptin = document.getElementById('optinQi').checked;
+  if(qiOptin && EMAIL_RE.test(email)) mlSubscribe(name, email, 'Website - parcel inquiry');
   submitToFormspree(this, {
     _subject: `Parcel Inquiry — ${l ? l.apn : ''}`,
-    Name: name, Phone: phone, Email: email, 'Preferred Payment': payment, Parcel: parcelInfo,
+    Name: name, Phone: phone, Email: email, 'Preferred Payment': payment, Parcel: parcelInfo, 'Joined Buyer List': qiOptin ? 'Yes' : 'No',
     'Consent to Contact': 'Yes — agreed to Terms & Privacy Policy',
   }, "Thanks — I'll be in touch soon.");
 });
@@ -1163,9 +1225,13 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
   const phone = document.getElementById('phone').value;
   const parcel = document.getElementById('parcelInterest').value;
   const msg = document.getElementById('message').value;
+  const cEmail = document.getElementById('contactEmail').value.trim();
+  const cOptin = document.getElementById('optinContact').checked;
+  if(cOptin && !EMAIL_RE.test(cEmail)){ alert('Please add your email address so I can send you new land deals.'); return; }
+  if(cOptin) mlSubscribe(name, cEmail, 'Website - contact form');
   submitToFormspree(this, {
     _subject: 'New Inquiry From Website',
-    Name: name, Phone: phone, Parcel: parcel, Message: msg,
+    Name: name, Phone: phone, Email: cEmail, Parcel: parcel, Message: msg, 'Joined Buyer List': cOptin ? 'Yes' : 'No',
     'Consent to Contact': 'Yes — agreed to Terms & Privacy Policy',
   }, "Thanks — I'll get back to you personally soon.");
 });
