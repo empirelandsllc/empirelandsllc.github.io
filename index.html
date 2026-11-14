@@ -186,7 +186,7 @@
   .filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:38px;padding-bottom:26px;border-bottom:1px solid var(--line);}
   .filter-chip{padding:9px 18px;border:1px solid var(--line);border-radius:20px;font-size:0.9rem;font-weight:600;color:var(--text-soft);background:var(--white);transition:all .2s ease;}
   .filter-chip.active,.filter-chip:hover{background:var(--ink);color:var(--parchment);border-color:var(--ink);}
-  .search-box{margin-inline-start:auto;position:relative;min-width:220px;}
+  .search-box{position:relative;min-width:220px;width:100%;max-width:360px;}
   .search-box input{width:100%;padding:10px 16px;border:1px solid var(--line);border-radius:20px;background:var(--white);font-family:inherit;font-size:0.9rem;color:var(--text);}
   .search-box input:focus{outline:2px solid var(--moss);outline-offset:1px;}
 
@@ -238,26 +238,8 @@
   .no-results{text-align:center;padding:60px 20px;color:var(--text-soft);display:none;}
 
   /* ---------- featured parcel ---------- */
-  .featured-strip{background:linear-gradient(135deg,#D4A94E 0%,#C79A3D 100%);color:#1E2A26;}
-  .fs-inner{max-width:1200px;margin:0 auto;padding:28px 40px;display:flex;align-items:center;justify-content:space-between;gap:32px;}
-  .fs-label{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
-  .featured-strip h2{font-family:'Fraunces',serif;font-size:1.55rem;line-height:1.2;margin:0 0 12px;color:#1E2A26;}
-  .fs-points{list-style:none;display:flex;flex-wrap:wrap;gap:8px 10px;margin:0;padding:0;}
-  .fs-points li{background:rgba(255,255,255,0.35);border-radius:999px;padding:6px 14px;font-size:0.88rem;}
-  .fs-offer{text-align:center;flex-shrink:0;}
-  .fs-price{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:700;line-height:1;}
-  .fs-price span{font-size:0.95rem;font-weight:500;vertical-align:middle;margin-right:4px;}
-  .fs-price small{font-size:1rem;font-weight:500;}
-  .fs-sub{font-size:0.82rem;margin:6px 0 12px;}
-  .fs-btn{background:#1E2A26;color:#F3E9D2;border:0;padding:12px 22px;font-weight:600;font-size:0.95rem;cursor:pointer;border-radius:2px;}
-  .fs-btn:hover{background:#000;}
   .card.featured{border:2px solid var(--ochre);box-shadow:0 10px 30px rgba(199,154,61,0.28);}
   .featured-badge{position:absolute;left:12px;bottom:12px;background:var(--ochre);color:var(--ink);font-weight:700;font-size:0.78rem;padding:6px 12px;border-radius:2px;letter-spacing:0.02em;z-index:2;}
-  @media(max-width:860px){
-    .fs-inner{flex-direction:column;align-items:flex-start;padding:24px 20px;gap:18px;}
-    .fs-offer{text-align:left;}
-    .featured-strip h2{font-size:1.3rem;}
-  }
   /* ---------- sold listings ---------- */
   .img-missing{position:relative;}
   .img-missing img{visibility:hidden;}
@@ -464,26 +446,6 @@
   </div>
 </section>
 
-<section class="featured-strip" aria-label="Featured parcel">
-  <div class="fs-inner">
-    <div class="fs-text">
-      <div class="fs-label">★ Featured Parcel</div>
-      <h2>805 Springfield Avenue — Between Two Lakes</h2>
-      <ul class="fs-points">
-        <li><b>0.65 mi</b> to Crown Lake</li>
-        <li><b>0.60 mi</b> to Diamond Lake</li>
-        <li><b>Utilities</b> available on the street</li>
-        <li><b>Paved road</b> access</li>
-      </ul>
-    </div>
-    <div class="fs-offer">
-      <div class="fs-price"><span>Only</span> $149 <small>down</small></div>
-      <div class="fs-sub">0.33 acres · $3,767 · Owner financing</div>
-      <button type="button" class="fs-btn" id="featuredBtn">See This Parcel →</button>
-    </div>
-  </div>
-</section>
-
 <section class="trust">
   <div class="wrap">
     <div class="section-head" style="margin-bottom:36px;">
@@ -550,10 +512,6 @@
     </div>
 
     <div class="filters" id="filters">
-      <button class="filter-chip active" data-region="all">All Arkansas</button>
-      <button class="filter-chip" data-region="Ozarks (North AR)">Ozarks (North AR)</button>
-      <button class="filter-chip" data-region="Central AR">Central AR</button>
-      <button class="filter-chip" data-region="Northwest AR">Northwest AR</button>
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search by county or APN...">
       </div>
@@ -1088,7 +1046,6 @@ filters.querySelectorAll('.filter-chip').forEach(chip=>{
 searchInput.addEventListener('input', renderListings);
 
 const overlay = document.getElementById('modalOverlay');
-document.getElementById('featuredBtn').addEventListener('click',()=>{const f=listings.find(x=>x.featured); if(f) openModal(f);});
 let currentModalListing = null;
 function openModal(l){
   currentModalListing = l;
