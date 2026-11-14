@@ -79,14 +79,30 @@
   .menu-btn{display:none;background:none;border:none;font-size:1.6rem;color:var(--ink);}
 
   @media(max-width:860px){
+    header{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--parchment);}
     nav.links{
-      position:fixed;inset:70px 0 0 0;background:var(--parchment);
+      position:fixed;top:70px;left:0;right:0;bottom:0;background:var(--parchment);
       flex-direction:column;padding:36px 28px;gap:24px;
-      transform:translateY(-110%);transition:transform .35s ease;
+      transform:translateY(-110%);visibility:hidden;transition:transform .35s ease,visibility 0s .35s;
       border-top:1px solid var(--line);
     }
-    nav.links.open{transform:translateY(0);}
-    .menu-btn{display:block;}
+    nav.links.open{transform:translateY(0);visibility:visible;transition:transform .35s ease;}
+    .menu-btn{display:block;padding:6px 10px;cursor:pointer;}
+  }
+  @media(max-width:520px){
+    .nav{padding:12px 16px;}
+    .brand{font-size:1.1rem;}
+    .hero{padding:40px 0 36px;}
+    .hero-inner{padding:0 18px;gap:32px;}
+    .gallery-main{height:260px !important;}
+    .gallery-thumbs img{width:68px;height:52px;}
+    .modal-overlay{padding:8px;}
+    .modal{max-height:94vh;}
+    .sold-card{min-width:220px;}
+    .modal .specs{gap:8px !important;}
+    .modal .specs div{padding:10px 6px !important;min-width:0;}
+    .modal .specs .num{font-size:0.8rem !important;letter-spacing:-0.02em;}
+    .modal .specs div:first-child .num,.modal .specs div:nth-child(2) .num{font-size:1rem !important;}
   }
 
   /* ---------- hero ---------- */
@@ -222,6 +238,9 @@
   .no-results{text-align:center;padding:60px 20px;color:var(--text-soft);display:none;}
 
   /* ---------- sold listings ---------- */
+  .img-missing{position:relative;}
+  .img-missing img{visibility:hidden;}
+  .img-missing::after{content:'Photo coming soon';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--text-soft);background:var(--parchment-2);}
   .sold-section{background:var(--white);border-top:1px solid var(--line);padding:48px 0;}
   .sold-track{display:flex;gap:18px;overflow-x:auto;padding-bottom:8px;}
   .sold-track::-webkit-scrollbar{height:6px;}
@@ -270,6 +289,7 @@
 
   .founder-row{display:flex;gap:20px;align-items:center;margin-top:36px;padding-top:28px;border-top:1px solid rgba(239,231,210,0.2);}
   .founder-row img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--ochre);}
+  .founder-row img.founder-logo{object-fit:contain;background:var(--parchment);padding:6px;}
   .founder-row h5{font-family:'Fraunces',serif;font-size:1rem;}
   .founder-row span{color:rgba(239,231,210,0.65);font-size:0.85rem;}
 
@@ -533,7 +553,7 @@
       </div>
       <a href="#contact" class="btn btn-primary">Schedule a Call</a>
       <div class="founder-row">
-        <img src="https://picsum.photos/seed/founder/200/200" alt="Owner photo">
+        <img class="founder-logo" src="images/logo.png" alt="Empire Lands LLC logo">
         <div>
           <h5>Empire Lands LLC</h5>
           <span>Ron Hilo — personally involved in every deal</span>
@@ -893,7 +913,7 @@ const listings = [
   },
   { id:3, apn:"800-12006-000", tagline:"Minutes From Both Lakes", title:"Timberland Homesite", region:"Ozarks (North AR)", location:"805 Springfield Avenue, Horseshoe Bend, AR", county:"Izard County", size:0.33, price:"$3,767", zoning:"Residential", status:"For Sale", agentName:"Ron Hilo", agentCompany:"Empire Lands, LLC", paymentUrl:"https://secure.geekpay.io/to/empire-lands-llc/down-payment-apn-800-12006-000-ar",
     desc:"A 0.33-acre residential homesite built for quality single-family development, remarkably close to the water — just 0.65 miles from Crown Lake and 0.60 miles from Diamond Lake, with utilities nearby.",
-    photos:["images/805-springfield-ave-149-down.jpg"],
+    photos:["images/805-springfield-ave-149-down.jpg", "images/800-12006-000%201.png", "images/800-12006-000%202.png", "images/800-12006-000%203.png", "images/800-12006-000%204.png", "images/800-12006-000%205.jpg", "images/800-12006-000%206.jpg", "images/800-12006-000%207.webp", "images/800-12006-000%208.jpg"],
     details:[
       { label:"APN", value:"800-12006-000" },
       { label:"Address", value:"805 Springfield Avenue, Horseshoe Bend, AR 72512" },
@@ -1214,6 +1234,7 @@ document.getElementById('modalReserveBtn').addEventListener('click', function(e)
   if(this.getAttribute('href') === '#contact') overlay.classList.remove('open');
 });
 
+document.addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&t.parentElement&&!t.classList.contains('mark')&&t.alt!=='Empire Lands LLC logo'){t.parentElement.classList.add('img-missing');}},true);
 const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
 menuBtn.addEventListener('click', ()=> navLinks.classList.toggle('open'));
